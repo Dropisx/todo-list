@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
-  const { id, improvedTitle } = await req.json()
+  const body = await req.json()
+  const { id, improvedTitle } = body
 
   if (!id || !improvedTitle) {
     return NextResponse.json(
@@ -22,10 +23,7 @@ export async function POST(req: Request) {
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })
