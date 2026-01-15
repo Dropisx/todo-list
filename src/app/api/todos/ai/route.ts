@@ -1,6 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
+/**
+ * GET — apenas para teste no navegador
+ */
+export async function GET() {
+  return NextResponse.json({
+    status: 'ok',
+    message: 'API /api/todos/ai está funcionando',
+  })
+}
+
+/**
+ * POST — usado pelo n8n
+ */
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -18,7 +31,7 @@ export async function POST(req: Request) {
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       return NextResponse.json(
-        { error: 'Supabase environment variables not configured' },
+        { error: 'Supabase env not configured' },
         { status: 500 }
       )
     }
@@ -41,9 +54,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true })
-  } catch (err) {
+  } catch {
     return NextResponse.json(
-      { error: 'Invalid request body' },
+      { error: 'Invalid JSON body' },
       { status: 400 }
     )
   }
