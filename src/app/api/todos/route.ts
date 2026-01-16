@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
@@ -43,25 +42,26 @@ export async function POST(req: Request) {
     .select()
     .single()
 
-  if (error || !data) {
-    return NextResponse.json({ error: error?.message }, { status: 500 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // 🔹 DISPARA O N8N (sem bloquear o usuário)
-  fetch(process.env.N8N_WEBHOOK_URL!, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: data.id,
-      title: data.title
-    })
-  }).catch(() => {
-    // falha silenciosa — não afeta o usuário
-  })
+  // Enviar para o n8n webhook (sem bloquear a resposta)
+  try {
+    fetch('https://pedrovaleriano.app.n8n.cloud/webhook/api/todos/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: data.id,
+        title: data.title
+      })
+    }).catch(err => console.error('[N8N Webhook] Erro:', err))
+  } catch (err) {
+    console.error('[N8N Webhook] Falha ao enviar:', err)
+  }
 
   return NextResponse.json(data)
 }
-
 
 export async function PUT(req: Request) {
   const body = await req.json()
@@ -90,4 +90,3 @@ export async function PUT(req: Request) {
 
   return NextResponse.json({ success: true })
 }
-
